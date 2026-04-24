@@ -9,7 +9,33 @@ category: Index
     <p>
         A manual website template based on <a href="http://bearsunday.github.io/">http://bearsunday.github.io/</a>.
     </p>
-    <a class="btn btn-primary" href="/manuals/1.0/en/index.html">
+    <a class="intl btn btn-primary" href="/manuals/1.0/en/index.html">
         Learn more &raquo;
     </a>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const navigatorLanguages = window.navigator.languages;
+            const locales = (navigatorLanguages && navigatorLanguages.length)
+                ? navigatorLanguages
+                : [window.navigator.language ?? ''];
+            const preferredSupportedLocale = locales.find((locale) => {
+                const lowerLocale = locale.toLowerCase();
+
+                return lowerLocale.startsWith('ja') || lowerLocale.startsWith('en');
+            }) ?? '';
+            const prefersJapanese = preferredSupportedLocale.startsWith('ja');
+
+            if (!prefersJapanese) {
+                return;
+            }
+
+            const links = document.getElementsByClassName('intl');
+            for (const link of links) {
+                const href = link.getAttribute('href');
+                if (href && href.includes('/en/')) {
+                    link.setAttribute('href', href.replace('/en/', '/ja/'));
+                }
+            }
+        });
+    </script>
 </div>

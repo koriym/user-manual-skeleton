@@ -15,8 +15,8 @@
     <link rel="manifest" href="/site.webmanifest">
     <link rel="apple-touch-icon" href="/images/logo.png">
     {% if page.category == 'Manual' %}
-    <link href="/pagefind/pagefind-component-ui.css" rel="stylesheet">
-    <script src="/pagefind/pagefind-component-ui.js" type="module"></script>
+    <link href="{{ site.baseurl }}/pagefind/pagefind-component-ui.css" rel="stylesheet">
+    <script src="{{ site.baseurl }}/pagefind/pagefind-component-ui.js" type="module"></script>
     {% endif %}
 </head>
 <body {% if page.category %}data-page-category="{{ page.category }}"{% endif %} data-spy="scroll" data-target="#ArticleToc" data-offset="65">
@@ -45,6 +45,11 @@
                 <a class="{% if page.layout == 'docs-ja' %}active{% endif %}" href="{{ page.permalink | replace: '/en/', '/ja/' }}">Ja</a>
             </li>
         </ul>
+        <!-- base-url prefixes Pagefind's result links and bundle-path locates the
+             search assets; both are needed when the site is served from a
+             subdirectory (GitHub Pages project sites), where the auto-detected
+             bundle path does not resolve. -->
+        <pagefind-config base-url="{{ site.baseurl }}/" bundle-path="{{ site.baseurl }}/pagefind/"></pagefind-config>
         <pagefind-modal></pagefind-modal>
         {% endif %}
     </nav>

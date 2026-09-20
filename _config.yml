@@ -9,3 +9,7 @@ markdown: kramdown
 redcarpet:
   extensions: ["autolink", "no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript", "with_toc_data", "tables"]
 highlighter: rouge
+
+# Keep the Pagefind search index across watch rebuilds
+keep_files:
+  - "pagefind"

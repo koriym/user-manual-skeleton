@@ -39,12 +39,32 @@ In your header include, load the Pagefind Component UI assets and place the moda
 {% endif %}
 ```
 
-Place the trigger where you want the search icon (e.g., next to language switcher):
+Place the trigger where you want the search icon (e.g., next to language switcher). Keep the row visible at every breakpoint so small screens can search too — only the language switcher is desktop-only, since small screens usually have their own switcher in the sidebar navigation.
 
 ```html
-<pagefind-modal-trigger></pagefind-modal-trigger>
+<ul class="navbar-nav ml-md-auto align-self-end align-self-md-auto d-flex flex-row language-list">
+    <li class="nav-item">
+        <pagefind-modal-trigger></pagefind-modal-trigger>
+    </li>
+    <!-- Language switcher: desktop only -->
+    <li class="d-none d-md-block">
+        <a href="{{ page.permalink | replace: '/ja/', '/en/' }}">En</a>
+    </li>
+    <li class="d-none d-md-block">
+        <a href="{{ page.permalink | replace: '/en/', '/ja/' }}">Ja</a>
+    </li>
+</ul>
 <pagefind-modal></pagefind-modal>
 ```
+
+Notes on the responsive classes:
+
+- `align-self-end` right-aligns the row on small screens, where a `navbar` collapses to `flex-column` and `ml-auto` has no effect on the cross axis.
+- `align-self-md-auto` restores the default above the `md` breakpoint so the desktop layout is untouched.
+- `d-flex flex-row` overrides `.navbar-nav`'s `flex-direction: column`.
+- Do **not** add `align-items-center` to this list — it shifts the icon a few pixels out of line with the `En` / `Ja` links. Plain default alignment already matches them.
+
+**Do not** append `{# ... #}` comments in Jekyll templates — that is Twig syntax, not Liquid, and it renders literally into the page. Use `<!-- ... -->` instead.
 
 ### 3. Customize the trigger to show only a magnifier icon
 
@@ -201,6 +221,7 @@ This gives you zero-config language-separated search: Japanese pages search only
 | **Bold highlight** | Standard (Google, VitePress); background color optional |
 | **No `1page.md`** | Search + `llms.txt` cover human and AI use cases better |
 | **CI-only index generation** | Local dev generates once on serve start; CI regenerates on every deploy |
+| **Responsive trigger** | Shown at all breakpoints; language switcher stays desktop-only to avoid duplication |
 
 ## Verification
 
@@ -209,3 +230,7 @@ This gives you zero-config language-separated search: Japanese pages search only
 3. Confirm the magnifier icon appears in the header
 4. Click it and search for a keyword
 5. Confirm results are language-appropriate and matched words are bold
+6. Repeat at a mobile viewport (e.g. 390x844) and confirm:
+   - the icon is still visible and right-aligned,
+   - the modal opens full width and search works,
+   - the page has no horizontal scroll (`document.body.scrollWidth === document.body.clientWidth`).

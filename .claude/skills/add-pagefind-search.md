@@ -39,32 +39,74 @@ In your header include, load the Pagefind Component UI assets and place the moda
 {% endif %}
 ```
 
-Place the trigger where you want the search icon (e.g., next to language switcher). Keep the row visible at every breakpoint so small screens can search too — only the language switcher is desktop-only, since small screens usually have their own switcher in the sidebar navigation.
+**Desktop** — place the trigger in the header, next to the language switcher:
 
 ```html
-<ul class="navbar-nav ml-md-auto align-self-end align-self-md-auto d-flex flex-row language-list">
+<ul class="navbar-nav ml-md-auto d-none d-md-flex language-list">
     <li class="nav-item">
         <pagefind-modal-trigger></pagefind-modal-trigger>
     </li>
-    <!-- Language switcher: desktop only -->
-    <li class="d-none d-md-block">
-        <a href="{{ page.permalink | replace: '/ja/', '/en/' }}">En</a>
-    </li>
-    <li class="d-none d-md-block">
-        <a href="{{ page.permalink | replace: '/en/', '/ja/' }}">Ja</a>
-    </li>
+    <li><a href="{{ page.permalink | replace: '/ja/', '/en/' }}">En</a></li>
+    <li><a href="{{ page.permalink | replace: '/en/', '/ja/' }}">Ja</a></li>
 </ul>
 <pagefind-modal></pagefind-modal>
 ```
 
-Notes on the responsive classes:
+**Mobile** — do *not* leave it on the nav link row or on a row of its own.
+A row below the links reads as misaligned, and squeezing it onto the link row
+crowds it. Put it in the sidebar navigation header, on the same row as the
+language switcher, with the hamburger on the left:
 
-- `align-self-end` right-aligns the row on small screens, where a `navbar` collapses to `flex-column` and `ml-auto` has no effect on the cross axis.
-- `align-self-md-auto` restores the default above the `md` breakpoint so the desktop layout is untouched.
-- `d-flex flex-row` overrides `.navbar-nav`'s `flex-direction: column`.
-- Do **not** add `align-items-center` to this list — it shifts the icon a few pixels out of line with the `En` / `Ja` links. Plain default alignment already matches them.
+```html
+<!-- _includes/manuals/1.0/en/contents.html -->
+<div class="navigation-header">
+    <div class="ml-auto d-flex align-items-center justify-content-between d-md-none">
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#Navber">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="d-flex align-items-center">
+            {% if page.category == 'Manual' %}
+            <pagefind-modal-trigger></pagefind-modal-trigger>
+            {% endif %}
+            <ul class="navbar-nav language-list">
+                <li><a href="{{ page.permalink | replace: '/ja/', '/en/' }}">En</a></li>
+                <li><a href="{{ page.permalink | replace: '/en/', '/ja/' }}">Ja</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+```
 
-**Do not** append `{# ... #}` comments in Jekyll templates — that is Twig syntax, not Liquid, and it renders literally into the page. Use `<!-- ... -->` instead.
+```css
+/* Space the trigger from the language switcher */
+.navigation-header pagefind-modal-trigger {
+    margin-right: .5rem;
+}
+
+/* Keep the hamburger on the left. The toggler inherits margin-left:auto from
+   the framework's .side-bar rule, so reset it and order it first. The
+   selector must match the real DOM: .navbar-light is an ANCESTOR of
+   .navigation-header, not a child, and this rule must come after that one
+   (same specificity, so source order decides). */
+.side-bar .navigation-header .navbar-toggler {
+    margin-left: 0;
+    order: -1;
+}
+```
+
+Notes on the layout:
+
+- `d-flex` / `d-none` / `d-md-none`: note that `d-sm-block` applies from 576px
+  **up**, so an element carrying only `d-sm-block d-md-none` is still rendered
+  below 576px (default `display: block`). Prefer `d-flex ... d-md-none` so the
+  layout is explicit at every width and `align-items` / `justify-content` work.
+- `justify-content: space-between` plus `order: -1` yields hamburger-left /
+  search-and-language-right without reordering the HTML.
+- Verify the page has no horizontal scroll
+  (`document.body.scrollWidth === document.body.clientWidth`).
+- Do **not** append `{# ... #}` comments in Jekyll templates — that is Twig
+  syntax, not Liquid, and it renders literally into the page. Use
+  `<!-- ... -->` instead.
 
 ### 3. Customize the trigger to show only a magnifier icon
 
@@ -94,6 +136,15 @@ pagefind-modal-trigger .pf-trigger-btn {
 pagefind-modal-trigger .pf-trigger-btn:hover {
     background: rgba(0, 0, 0, 0.05) !important;
     border-radius: 0.25rem;
+}
+
+/* Optical alignment: the glyph's geometric centre can already match the
+   adjacent text and still read as sitting high, because the magnifier's
+   handle extends to the lower right. Nudge it down ~2px. Pagefind ships its
+   rules at id-level specificity via :is(*, ##), so !important is required
+   to override them. */
+.navigation-header pagefind-modal-trigger .pf-trigger-icon {
+    transform: translateY(2px) !important;
 }
 ```
 
